@@ -1,0 +1,23 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "description": "tetris",
+  "main": "main.js",
+  "scripts": {
+    "test": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OlegChuy/JS.git"
+  },
+  "author": "Chui Oleg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OlegChuy/JS/issues"
+  },
+  "homepage": "https://github.com/OlegChuy/JS#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^7.1.0"
+  }
+}
