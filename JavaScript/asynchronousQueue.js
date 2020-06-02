@@ -26,7 +26,7 @@ class Queue {
     this.prioritised = false;
     this.formed = false;
   }
-  
+
   push(key, value) {
     this.pushed = true;
     this.data.set(key, value);
@@ -36,12 +36,12 @@ class Queue {
     this.arraysOfTasks.push(value);
     return this;
   }
-  
+
   prioritise() {
     this.prioritised = true;
     return this;
   }
-  
+
   setFactors(string = 'ABC') {
     this._applyFactors(string, this.companies, this.factorsOfQueue) ?
       console.log(color.green + 'Factors of this Queue: ' +
@@ -50,18 +50,18 @@ class Queue {
         color.white + '\n' + SEPARATOR);
     return this;
   }
-  
+
   _applyFactors(parameter, iterable, array) {
     iterable.forEach((value, index) => {
       if (this._canBePushed(parameter, value)) array.push(this.users[index]);
     });
     return array.length;
   }
-  
+
   _canBePushed(parameter, value) {
     return typeof parameter === 'string' && parameter.includes(value);
   }
-  
+
   _useFactors() {
     for (const value of this.factorsOfQueue) {
       const index = this.users.indexOf(value);
@@ -73,7 +73,7 @@ class Queue {
       this.priorities[index] = 0;
     }
   }
-  
+
   _usePriorities() {
     let timeout = 0;
     for (let i = 0; i < this.priorities.length; i++) {
@@ -84,11 +84,11 @@ class Queue {
       }
     }
   }
-  
+
   _maxElement(array) {
     return Math.max(...array);
   }
-  
+
   _iteratePriorities(timeout, max) {
     const indexOfMax = this.priorities.indexOf(max);
     const user = this.users[indexOfMax];
@@ -96,7 +96,7 @@ class Queue {
     userData.filter(object => object.user === user)
       .map(object => this._addElementsToCollections(this.data.get(object), user, timeout));
   }
-  
+
   _noPriorities() {
     let timeout = 0;
     for (const tasks of this.arraysOfTasks) {
@@ -108,7 +108,7 @@ class Queue {
       }
     }
   }
-  
+
   _addElementsToCollections(tasks, user, timeout) {
     const index = this.arraysOfTasks.indexOf(tasks);
     this.queue.push(...tasks);
@@ -119,14 +119,14 @@ class Queue {
     if (length > 1) this._setIntervalsBetweenTasks(intervals, length);
     this.timeouts.push(...intervals);
   }
-  
+
   _setIntervalsBetweenTasks(intervals, length) {
     const difference = 1 / length;
     for (let i = 0; i < length; i++) {
       intervals[i] += i * difference;
     }
   }
-  
+
   init() {
     this.formed = true;
     if (this.factorsOfQueue.length) this._useFactors();
@@ -134,7 +134,7 @@ class Queue {
     if (!this.prioritised) this._noPriorities();
     return this;
   }
-  
+
   async start() {
     if (!this.pushed) throw new Error(color.red +
       'Queue is empty. You must add the elements first!' + color.white);
