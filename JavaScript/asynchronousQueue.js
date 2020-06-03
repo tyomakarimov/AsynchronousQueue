@@ -80,7 +80,7 @@ class Queue {
       const max = this._maxElement(this.priorities);
       if (max) {
         timeout++;
-        this._iteratePriorities(timeout, max);
+        this._findPriority(timeout, max);
       }
     }
   }
@@ -89,7 +89,7 @@ class Queue {
     return Math.max(...array);
   }
 
-  _iteratePriorities(timeout, max) {
+  _findPriority(timeout, max) {
     const indexOfMax = this.priorities.indexOf(max);
     const user = this.users[indexOfMax];
     const userData = Array.from(this.data.keys());
