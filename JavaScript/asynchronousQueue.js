@@ -1,6 +1,8 @@
 'use strict';
 
-const wait = (ms, task) => new Promise(resolve => setTimeout(() => resolve(task), ms));
+const wait = (ms, task) => new Promise(resolve =>
+  setTimeout(() =>
+    resolve(task), ms));
 
 const color = {
   red: '\x1b[1;31m',
@@ -94,7 +96,8 @@ class Queue {
     const user = this.users[indexOfMax];
     const userData = Array.from(this.data.keys());
     userData.filter(object => object.user === user)
-      .map(object => this._addElementsToCollections(this.data.get(object), user, timeout));
+      .map(object =>
+        this._addElementsToCollections(this.data.get(object), user, timeout));
   }
 
   _noPriorities() {
@@ -142,8 +145,9 @@ class Queue {
       'Queue has not been formed. You must use method init() !' + color.white);
     const waiting = [];
     for (let i = 0; i < this.queue.length; i++) {
+      const num = this.queue.length - 1 - i;
       waiting.push(wait(this.timeouts[i] * 1000, color.yellow +
-        `${this.queue[i]} from user ${this.usersByTasks[i]}, waiting: ${this.queue.length - 1 - i}` +
+        `${this.queue[i]} from user ${this.usersByTasks[i]}, waiting: ` + num +
         color.white + '\n' + SEPARATOR));
     }
     for (const promise of waiting) {
@@ -171,7 +175,8 @@ const collectionOfUsers = (collection, numberOfUsers) => {
       tasks.push(`Task${counter}`);
       counter++;
     }
-    const user = new User(i, companies.charAt(index), priorities[indexOfPriority]);
+    const user = new User(i,
+      companies.charAt(index), priorities[indexOfPriority]);
     priorities.splice(indexOfPriority, 1);
     Object.setPrototypeOf(user, {});
     collection.set(user, tasks);
