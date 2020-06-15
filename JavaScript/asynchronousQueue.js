@@ -1,6 +1,11 @@
 'use strict';
 
-const wait = (ms, task) => new Promise(resolve => setTimeout(() => resolve(task), ms));
+const wait = (ms, task) =>
+  new Promise((resolve) =>
+    setTimeout(() => {
+      resolve(task);
+    }, ms)
+  );
 
 const color = {
   red: '\x1b[1;31m',
@@ -10,6 +15,27 @@ const color = {
 };
 
 const SEPARATOR = '--------------------------------';
+
+const factors = collection => {
+  console.log(
+    color.green +
+      'Factors of this Queue: ' +
+      collection.join(', ') +
+      color.white +
+      '\n' +
+      SEPARATOR
+  );
+};
+
+const noFactors = () => {
+  console.log(
+    color.green +
+      'This Queue does not have factors' +
+      color.white +
+      '\n' +
+      SEPARATOR
+  );
+};
 
 class Queue {
   constructor() {
@@ -44,16 +70,15 @@ class Queue {
 
   setFactors(string = 'ABC') {
     this._applyFactors(string, this.companies, this.factorsOfQueue) ?
-      console.log(color.green + 'Factors of this Queue: ' +
-        this.factorsOfQueue.join(', ') + color.white + '\n' + SEPARATOR) :
-      console.log(color.green + 'This Queue does not have factors' +
-        color.white + '\n' + SEPARATOR);
+      factors(this.factorsOfQueue) :
+      noFactors();
     return this;
   }
 
   _applyFactors(parameter, iterable, array) {
     iterable.forEach((value, index) => {
-      if (this._canBePushed(parameter, value)) array.push(this.users[index]);
+      const user = this.users[index];
+      if (this._canBePushed(parameter, value)) array.push(user);
     });
     return array.length;
   }
@@ -65,11 +90,12 @@ class Queue {
   _useFactors() {
     for (const value of this.factorsOfQueue) {
       const index = this.users.indexOf(value);
+      const user = this.users[index];
       const elements = this.arraysOfTasks[index];
       const length = elements.length;
       this.queue.push(...elements);
       this.timeouts.push(...Array(length).fill(0.5));
-      this.usersByTasks.push(...Array(length).fill(this.users[index]));
+      this.usersByTasks.push(...Array(length).fill(user));
       this.priorities[index] = 0;
     }
   }
@@ -92,9 +118,14 @@ class Queue {
   _findPriority(timeout, max) {
     const indexOfMax = this.priorities.indexOf(max);
     const user = this.users[indexOfMax];
-    const userData = Array.from(this.data.keys());
-    userData.filter(object => object.user === user)
-      .map(object => this._addElementsToCollections(this.data.get(object), user, timeout));
+    const mapIterator = this.data.keys();
+    const userData = Array.from(mapIterator);
+    userData
+      .filter(object => object.user === user)
+      .map(object => {
+        const tasks = this.data.get(object);
+        this._addElementsToCollections(tasks, user, timeout);
+      });
   }
 
   _noPriorities() {
@@ -135,76 +166,47 @@ class Queue {
     return this;
   }
 
-  async start() {
-    if (!this.pushed) throw new Error(color.red +
-      'Queue is empty. You must add the elements first!' + color.white);
-    if (!this.formed) throw new Error(color.red +
-      'Queue has not been formed. You must use method init() !' + color.white);
+  async start(fn, onEnd) {
+    if (!this.pushed) {
+      throw new Error(
+        color.red +
+          'Queue is empty. You must add the elements first!' +
+          color.white
+      );
+    }
+    if (!this.formed) {
+      throw new Error(
+        color.red +
+          'Queue has not been formed. You must use method init() !' +
+          color.white
+      );
+    }
     const waiting = [];
     for (let i = 0; i < this.queue.length; i++) {
-      waiting.push(wait(this.timeouts[i] * 1000, color.yellow +
-        `${this.queue[i]} from user ${this.usersByTasks[i]}, waiting: ${this.queue.length - 1 - i}` +
-        color.white + '\n' + SEPARATOR));
+      const timeout = this.timeouts[i] * 1000;
+      const user = this.usersByTasks[i];
+      const task = this.queue[i];
+      const numberOfWaiting = this.queue.length - 1 - i;
+      const statusText =
+        color.yellow +
+        task +
+        ' from user ' +
+        user +
+        ', waiting: ' +
+        numberOfWaiting +
+        color.white +
+        '\n' +
+        SEPARATOR;
+      waiting.push(wait(timeout, statusText));
     }
     for (const promise of waiting) {
-      await promise.then(task => console.log(task));
+      await promise.then(fn);
     }
-    console.log(color.green + 'Finished' + color.white);
+    onEnd();
   }
 }
 
-// USAGE
-
-const random = number => Math.floor(Math.random() * number);
-
-const collectionOfUsers = (collection, numberOfUsers) => {
-  const companies = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  let counter = 1;
-  const arrayOfNumbers = [...Array(numberOfUsers).keys()];
-  const priorities = arrayOfNumbers.map(value => value + 1);
-  for (let i = 1; i <= numberOfUsers; i++) {
-    const index = random(companies.length);
-    const tasks = [];
-    const numberOfTasks = random(3) + 1;
-    const indexOfPriority = random(priorities.length);
-    for (let j = 0; j < numberOfTasks; j++) {
-      tasks.push(`Task${counter}`);
-      counter++;
-    }
-    const user = new User(i, companies.charAt(index), priorities[indexOfPriority]);
-    priorities.splice(indexOfPriority, 1);
-    Object.setPrototypeOf(user, {});
-    collection.set(user, tasks);
-  }
-  return collection;
+module.exports = {
+  Queue,
+  color,
 };
-
-const map = new Map();
-
-function User(user, company, priority) {
-  this.user = user;
-  this.company = company;
-  this.priority = priority;
-}
-
-collectionOfUsers(map, 8);
-
-const queue = new Queue();
-
-// CASES:
-
-// queue.start();
-
-for (const [key, value] of map.entries()) {
-  queue.push(key, value);
-}
-
-queue.init().start();
-
-// queue.prioritise().init().start();
-
-// queue.setFactors('ABCDE').init().start();
-
-// queue.prioritise().setFactors('XYZ').init().start();
-
-// queue.start();
